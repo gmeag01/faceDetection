@@ -1,6 +1,13 @@
+'''
+In first activation, you should run this file for make datasets 
+
+You have to make directory './data' and put in dataset images
+
+Then you can get a labels.csv file including name, path, min & max of x,y coordinations
+'''
+
 import os
 import csv
-import numpy as np
 import cv2
 
 # Get bounding box coordinate about face with Haar Cascade algorithm
@@ -11,7 +18,7 @@ def get_face_coordinate(path):
     return face
 
 # Save coordinate to csv format(image_name, image_path, x_min, y_min, x_max, y_max) 
-def save_coordinate(path, filename):    
+def save_coordinate(path, filename):
     name = filename[:-4]   # image name without format
     face = get_face_coordinate(os.path.join(path, filename))   # Get coordinate with HaarCascade algorithm
     for coor_arr in face:
@@ -19,13 +26,37 @@ def save_coordinate(path, filename):
         x_max, y_max = x_min+w, y_min+h
         # Save informations
         with open(os.path.join(path, 'labels.csv'), 'a', newline='') as file:
-            w = csv.writer(file)
-            w.writerow([name, os.path.join(path, filename), x_min, y_min, x_max, y_max])
+            wr = csv.writer(file)
+            wr.writerow([name, os.path.join(path, filename), x_min, y_min, x_max, y_max])
 
-for dir in os.listdir('./data'):
-    path = os.path.join('./data', dir)
+# Adapt algorithm
+def make_data(path):
     for filename in [file for file in os.listdir(path) if file.endswith('.jpg')]:
         try:
             save_coordinate(path, filename)
         except:
-            pass
+            pass  # if algorithm didn't get coordinate, just skip it.
+
+def get_frame(video_path, save_path, frame_name, fps):
+    n = 0
+    cap = cv2.VideoCapture(video_path)
+
+    while(cap.isOpened()):
+        ret, frame = cap.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        frame = cv2.resize(frame, (960, 960))
+        if ret:
+            if(int(cap.get(1)) % fps == 0):
+                path = os.path.join(save_path, frame_name) + str(n) + '.jpg'
+                cv2.imwrite(path, frame)
+            n += 1
+    cap.release()
+try:
+    path = './data'
+    with open(os.path.join(path, 'labels.csv'), 'a', newline='') as file:
+        wr = csv.writer(file)
+        wr.writerow(['name', 'path', 'x_min', 'y_min', 'x_max', 'y_max'])
+    get_frame(os.path.join(path, 'testVideo.mp4'), path, 'img', 60)
+    make_data(path)
+except Exception as e:
+    print('Error : ', e)
