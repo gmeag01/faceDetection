@@ -37,9 +37,9 @@ def make_data(path):
         except:
             pass  # if algorithm didn't get coordinate, just skip it.
 
-def get_frame(video_folder_path, save_path, frame_name, fps):
+def get_frame(video_folder_path, frame_name, fps):
     n = 0
-    for video_name in [video_path for video_path in os.listdir(video_folder_path) if video_folder_path.endswith('.mp4')]:
+    for video_name in [video_path for video_path in os.listdir(video_folder_path) if video_path.endswith('.mp4')]:
         cap = cv2.VideoCapture(os.path.join(video_folder_path, video_name))
 
         while(cap.isOpened()):
@@ -48,7 +48,7 @@ def get_frame(video_folder_path, save_path, frame_name, fps):
             frame = cv2.resize(frame, (960, 960))
             if ret:
                 if(int(cap.get(1)) % fps == 0):
-                    path = os.path.join(save_path, frame_name) + str(n) + '.jpg'
+                    path = os.path.join(video_folder_path, frame_name) + str(n) + '.jpg'
                     cv2.imwrite(path, frame)
                 n += 1
         cap.release()
@@ -57,7 +57,7 @@ try:
     with open(os.path.join(path, 'labels.csv'), 'a', newline='') as file:
         wr = csv.writer(file)
         wr.writerow(['name', 'path', 'x_min', 'y_min', 'x_max', 'y_max'])
-    get_frame(os.path.join(path, 'testVideo.mp4'), path, 'img', 60)
+    get_frame(path, 'img', 60)
     make_data(path)
 except Exception as e:
     print('Error : ', e)
