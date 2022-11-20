@@ -13,11 +13,11 @@ import cv2
 
 # Get bounding box coordinate about face with Haar Cascade algorithm
 def get_face_coordinate(path):
-    img = cv2.imread(path)   # Convert color image to grayscale image
+    img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     frontal_face_cascade = cv2.CascadeClassifier('./model/haarcascade_frontalface_default.xml')   # model import
     profile_face_cascade = cv2.CascadeClassifier('./model/haarcascade_profileface.xml')
-    frontal_face = np.array(frontal_face_cascade.detectMultiScale(img, 1.5, 5))   # Get coordinate
-    profile_face = np.array(profile_face_cascade.detectMultiScale(img, 1.5, 5))
+    frontal_face = np.array(frontal_face_cascade.detectMultiScale(img, 1.3, 5))   # Get coordinate
+    profile_face = np.array(profile_face_cascade.detectMultiScale(img, 1.3, 5))
 
     if frontal_face.any() and profile_face.any(): 
         return np.concatenate([frontal_face, profile_face])
@@ -52,17 +52,17 @@ def get_frame(video_folder_path, fps):
     for video_name in [video_path for video_path in os.listdir(video_folder_path) if video_path.endswith('.mp4')]:
         n = 0
         cap = cv2.VideoCapture(os.path.join(video_folder_path, video_name))
-
         while(cap.isOpened()):
-            if n == 1000 : break
             ret, frame = cap.read()
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            if not ret : break
+
             frame = cv2.resize(frame, (960, 960))
-            if ret:
-                if(int(cap.get(1)) % fps == 0):
-                    path = os.path.join(video_folder_path, video_name[:-4])+ '_' + str(n) + '.jpg'
-                    cv2.imwrite(path, frame)
-                n += 1
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            
+            if(int(cap.get(1)) % fps == 0):
+                path = os.path.join(video_folder_path, video_name[:-4])+ '_' + str(n) + '.jpg'
+                cv2.imwrite(path, frame)
+            n += 1
         cap.release()
 try:
     path = './data'
