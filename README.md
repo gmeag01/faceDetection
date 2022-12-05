@@ -15,6 +15,14 @@
  
  ## 주요기능 & 로직
  ### 회로 구성 및 도식도
+ <p align="center">
+     <img src="./logic.png">
+ </p>
+ 
+ -------
+- Face Tracking Camera의 간단한 도식도
+- ~~회로도 같이 올려야 하는데 귀찮아서 안올렸다. 언젠간 올리겠지.....~~
+ 
  ### 좌표 연산 & receive (Python)
 1. 웹캠에서 영상 데이터를 입력받고 MTCNN 기반 연산 & 프레임마다 Bounding Box를 생성해준다. 
     - return 값은 얼굴 bounding box 좌측 x, y / bounding box 가로, 세로 크기랑 눈, 코 등등 좌표인데 bounding box 중앙값 사용함.
